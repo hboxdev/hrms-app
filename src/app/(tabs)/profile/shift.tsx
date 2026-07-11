@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { Card, EmptyState, ErrorView, LoadingView } from '@/components/common';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { BrandText, Spacing } from '@/constants/theme';
 import { apiGet, ApiError } from '@/lib/api-client';
 import type { ShiftInfo } from '@/lib/types';
 
@@ -38,7 +38,7 @@ export default function ShiftScreen() {
       <View style={styles.content}>
         <Card>
           <ThemedText type="subtitle" style={{ fontSize: 19 }}>{shift.name}</ThemedText>
-          <ThemedText type="title" style={{ marginTop: Spacing.two, color: '#4F8EF7', fontSize: 32 }}>
+          <ThemedText type="title" style={{ marginTop: Spacing.two, color: BrandText, fontSize: 32 }}>
             {shift.start_time?.slice(0, 5)} – {shift.end_time?.slice(0, 5)}
           </ThemedText>
         </Card>

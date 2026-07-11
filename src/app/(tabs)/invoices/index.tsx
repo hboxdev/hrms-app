@@ -1,12 +1,12 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge, EmptyState, ErrorView, LoadingView } from '@/components/common';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { TopBar } from '@/components/top-bar';
+import { Brand, BrandDark, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { apiGet, ApiError } from '@/lib/api-client';
 import type { Invoice, Pagination } from '@/lib/types';
@@ -69,7 +69,9 @@ export default function InvoicesScreen() {
 
   return (
     <ThemedView style={styles.fill}>
-      <SafeAreaView style={styles.fill} edges={['top']}>
+      <TopBar />
+      <View style={styles.fill}>
+        <ThemedText type="title" style={styles.title}>Invoices</ThemedText>
         <View style={styles.searchWrap}>
           <TextInput
             value={search}
@@ -86,9 +88,9 @@ export default function InvoicesScreen() {
               onPress={() => setStatus(s.key)}
               style={[
                 styles.pill,
-                { backgroundColor: status === s.key ? '#4F8EF7' : theme.backgroundElement },
+                { backgroundColor: status === s.key ? Brand : theme.backgroundElement },
               ]}>
-              <ThemedText type="small" style={status === s.key ? { color: '#fff' } : undefined}>
+              <ThemedText type="small" style={status === s.key ? { color: BrandDark, fontWeight: '700' } : undefined}>
                 {s.label}
               </ThemedText>
             </Pressable>
@@ -125,13 +127,14 @@ export default function InvoicesScreen() {
             )}
           />
         )}
-      </SafeAreaView>
+      </View>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
+  title: { fontSize: 28, paddingHorizontal: Spacing.three, paddingTop: Spacing.three },
   searchWrap: { paddingHorizontal: Spacing.three, paddingTop: Spacing.two },
   search: { borderRadius: 12, paddingHorizontal: Spacing.three, paddingVertical: 10, fontSize: 15 },
   pills: { flexDirection: 'row', gap: Spacing.two, paddingHorizontal: Spacing.three, paddingVertical: Spacing.two },

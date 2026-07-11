@@ -1,5 +1,5 @@
 import { Redirect } from 'expo-router';
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import { Icon, Label, NativeTabs } from 'expo-router/unstable-native-tabs';
 
 import { LoadingView } from '@/components/common';
 import { useAuth } from '@/lib/auth-context';
@@ -13,23 +13,23 @@ export default function TabLayout() {
   return (
     <NativeTabs>
       <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf={{ default: 'house', selected: 'house.fill' }} md="home" />
+        <Label>Home</Label>
+        <Icon sf={{ default: 'house', selected: 'house.fill' }} />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="invoices">
-        <NativeTabs.Trigger.Label>Invoices</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf={{ default: 'doc.text', selected: 'doc.text.fill' }} md="description" />
+        <Label>Invoices</Label>
+        <Icon sf={{ default: 'doc.text', selected: 'doc.text.fill' }} />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="teams" hidden={!isAdmin}>
-        <NativeTabs.Trigger.Label>Teams</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf={{ default: 'person.2', selected: 'person.2.fill' }} md="group" />
+        <Label>Teams</Label>
+        <Icon sf={{ default: 'person.2', selected: 'person.2.fill' }} />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="profile">
-        <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf={{ default: 'person.crop.circle', selected: 'person.crop.circle.fill' }} md="person" />
+        <Label>Profile</Label>
+        <Icon sf={{ default: 'person.crop.circle', selected: 'person.crop.circle.fill' }} />
       </NativeTabs.Trigger>
     </NativeTabs>
   );

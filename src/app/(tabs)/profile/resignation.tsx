@@ -5,7 +5,7 @@ import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, StyleSheet, 
 import { Card, EmptyState, ErrorView, LoadingView, SectionTitle } from '@/components/common';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { Brand, BrandDark, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { apiGet, apiPostForm, ApiError } from '@/lib/api-client';
 import type { Resignation } from '@/lib/types';
@@ -144,8 +144,8 @@ export default function ResignationScreen() {
           <Pressable
             onPress={submit}
             disabled={submitting}
-            style={[styles.submitBtn, { backgroundColor: '#4F8EF7', opacity: submitting ? 0.6 : 1 }]}>
-            {submitting ? <ActivityIndicator color="#fff" /> : <ThemedText style={styles.submitText}>Submit Resignation</ThemedText>}
+            style={[styles.submitBtn, { backgroundColor: Brand, opacity: submitting ? 0.6 : 1 }]}>
+            {submitting ? <ActivityIndicator color={BrandDark} /> : <ThemedText style={styles.submitText}>Submit Resignation</ThemedText>}
           </Pressable>
         </Card>
 
@@ -178,5 +178,5 @@ const styles = StyleSheet.create({
   textArea: { minHeight: 70, textAlignVertical: 'top' },
   attachBtn: { borderWidth: 1, borderStyle: 'dashed', borderRadius: 10, padding: Spacing.two, marginTop: Spacing.three, alignItems: 'center' },
   submitBtn: { borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: Spacing.three },
-  submitText: { color: '#fff', fontWeight: '600' },
+  submitText: { color: BrandDark, fontWeight: '600' },
 });

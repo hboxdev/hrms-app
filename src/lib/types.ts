@@ -53,14 +53,43 @@ export type DashboardTeamRow = {
   expense: number;
   profit: number;
   roi: number | null;
+  tax: number;
   breakdown: { salary: number; sitting: number; ads: number; subs: number };
 };
 
 export type DashboardData = {
   period: { from: string; to: string; months: number };
-  totals: { revenue: number; expense: number; profit: number; roi: number | null };
+  totals: { revenue: number; expense: number; profit: number; roi: number | null; tax: number; merchant_fee_percent: number };
   teams: DashboardTeamRow[];
-  recent_payments: Array<{ id: number; owner_name: string; customer_name: string; total_amount: string; paid_at: string }>;
+  recent_payments: Array<{
+    id: number;
+    owner_name: string;
+    customer_name: string;
+    total_amount: string;
+    paid_at: string;
+    payment_type: string;
+    tax_amount: number;
+  }>;
+};
+
+export type TeamMember = {
+  id: number;
+  name: string;
+  email: string;
+  role: Role;
+  status: string;
+  employee_code: string | null;
+  profile_image: string | null;
+  department_name: string | null;
+  designation_name: string | null;
+  member_type?: string;
+  team_role?: string;
+  salary_pkr: number;
+};
+
+export type TeamDetail = DashboardTeamRow & {
+  period: { from: string; to: string; months: number };
+  members: TeamMember[];
 };
 
 export type PerformanceData = {

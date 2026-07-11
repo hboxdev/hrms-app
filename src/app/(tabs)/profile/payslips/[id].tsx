@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Badge, Card, ErrorView, LoadingView, SectionTitle } from '@/components/common';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { BrandText, Spacing } from '@/constants/theme';
 import { apiGet, ApiError } from '@/lib/api-client';
 import type { PayslipDetail } from '@/lib/types';
 
@@ -50,7 +50,7 @@ export default function PayslipDetailScreen() {
             </ThemedText>
             <Badge text={slip.status} color={slip.status === 'paid' ? 'green' : 'orange'} />
           </View>
-          <ThemedText type="title" style={{ marginTop: Spacing.two, color: '#4F8EF7' }}>{money(slip.final_salary)}</ThemedText>
+          <ThemedText type="title" style={{ marginTop: Spacing.two, color: BrandText }}>{money(slip.final_salary)}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">Final Salary{slip.paid_date ? ` · Paid ${slip.paid_date}` : ''}</ThemedText>
         </Card>
 

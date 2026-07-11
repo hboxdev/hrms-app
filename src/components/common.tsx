@@ -1,12 +1,28 @@
+import { BlurView } from 'expo-blur';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 
 export function Card({ children, style }: { children: React.ReactNode; style?: object }) {
-  return <ThemedView type="backgroundElement" style={[styles.card, style]}>{children}</ThemedView>;
+  const scheme = useColorScheme();
+  const isDark = scheme === 'dark';
+  return (
+    <BlurView
+      intensity={60}
+      tint={isDark ? 'dark' : 'light'}
+      experimentalBlurMethod="dimezisBlurView"
+      style={[
+        styles.card,
+        { backgroundColor: isDark ? 'rgba(40,42,48,0.55)' : 'rgba(255,255,255,0.55)' },
+        isDark ? styles.cardBorderDark : styles.cardBorderLight,
+        style,
+      ]}>
+      {children}
+    </BlurView>
+  );
 }
 
 export function SectionTitle({ children }: { children: React.ReactNode }) {
@@ -95,7 +111,11 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: Spacing.three,
     marginBottom: Spacing.two,
+    overflow: 'hidden',
+    borderWidth: StyleSheet.hairlineWidth,
   },
+  cardBorderLight: { borderColor: 'rgba(255,255,255,0.5)' },
+  cardBorderDark: { borderColor: 'rgba(255,255,255,0.12)' },
   sectionTitle: {
     textTransform: 'uppercase',
     letterSpacing: 0.5,

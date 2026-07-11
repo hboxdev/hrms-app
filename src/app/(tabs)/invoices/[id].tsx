@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Badge, Card, ErrorView, LoadingView, SectionTitle } from '@/components/common';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { BrandText, Spacing } from '@/constants/theme';
 import { apiGet, ApiError } from '@/lib/api-client';
 import type { InvoiceDetail } from '@/lib/types';
 
@@ -56,7 +56,7 @@ export default function InvoiceDetailScreen() {
             </View>
             <Badge text={invoice.status} color={badgeColor[invoice.status] ?? 'grey'} />
           </View>
-          <ThemedText type="title" style={{ marginTop: Spacing.two, color: '#4F8EF7' }}>
+          <ThemedText type="title" style={{ marginTop: Spacing.two, color: BrandText }}>
             ${Number(invoice.total_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">Total Amount</ThemedText>

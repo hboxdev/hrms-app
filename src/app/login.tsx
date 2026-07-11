@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { Brand, BrandDark, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { ApiError } from '@/lib/api-client';
 import { useAuth } from '@/lib/auth-context';
@@ -38,7 +38,7 @@ export default function LoginScreen() {
       <SafeAreaView style={styles.fill}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.fill}>
           <View style={styles.container}>
-            <View style={[styles.logo, { backgroundColor: '#4F8EF7' }]}>
+            <View style={[styles.logo, { backgroundColor: Brand }]}>
               <ThemedText type="title" style={styles.logoText}>HB</ThemedText>
             </View>
             <ThemedText type="title" style={styles.title}>HBOX HRMS</ThemedText>
@@ -73,8 +73,8 @@ export default function LoginScreen() {
               <Pressable
                 onPress={onSubmit}
                 disabled={busy || !email || !password}
-                style={[styles.button, { backgroundColor: '#4F8EF7', opacity: busy || !email || !password ? 0.5 : 1 }]}>
-                {busy ? <ActivityIndicator color="#fff" /> : <ThemedText style={styles.buttonText}>Sign In</ThemedText>}
+                style={[styles.button, { backgroundColor: Brand, opacity: busy || !email || !password ? 0.5 : 1 }]}>
+                {busy ? <ActivityIndicator color={BrandDark} /> : <ThemedText style={styles.buttonText}>Sign In</ThemedText>}
               </Pressable>
             </View>
           </View>
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: Spacing.three,
   },
-  logoText: { color: '#fff', fontSize: 26 },
+  logoText: { color: BrandDark, fontSize: 26 },
   title: { textAlign: 'center' },
   subtitle: { textAlign: 'center', marginTop: 4, marginBottom: Spacing.five },
   form: { gap: Spacing.one },
@@ -115,6 +115,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  buttonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
+  buttonText: { color: BrandDark, fontWeight: '600', fontSize: 16 },
   error: { color: '#EF4444', textAlign: 'center', marginTop: Spacing.two },
 });
