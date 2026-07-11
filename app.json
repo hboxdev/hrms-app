@@ -9,9 +9,11 @@
     "scheme": "hboxhrms",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.hboxdigital.hrms"
     },
     "android": {
+      "package": "com.hboxdigital.hrms",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
