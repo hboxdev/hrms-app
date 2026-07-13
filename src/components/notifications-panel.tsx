@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmptyState } from '@/components/common';
 import { ThemedText } from '@/components/themed-text';
@@ -36,6 +36,7 @@ function iconFor(n: Notification): { name: keyof typeof Ionicons.glyphMap; color
 
 export function NotificationsPanel({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { notifications, markAllRead } = useNotifications();
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (visible) markAllRead();
@@ -44,40 +45,44 @@ export function NotificationsPanel({ visible, onClose }: { visible: boolean; onC
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} />
-      <SafeAreaView style={styles.sheetWrap} edges={['bottom']}>
-        <ThemedView type="backgroundElement" style={styles.sheet}>
-          <View style={styles.handle} />
-          <View style={styles.header}>
-            <ThemedText type="subtitle" style={{ fontSize: 20 }}>Notifications</ThemedText>
-            <Pressable onPress={onClose} hitSlop={12}>
-              <ThemedText themeColor="textSecondary" style={{ fontSize: 20 }}>✕</ThemedText>
-            </Pressable>
-          </View>
+      <ThemedView type="backgroundElement" style={[styles.sheet, { paddingBottom: insets.bottom || Spacing.three }]}>
+        <View style={styles.handle} />
+        <View style={styles.header}>
+          <ThemedText type="subtitle" style={{ fontSize: 20 }}>Notifications</ThemedText>
+          <Pressable onPress={onClose} hitSlop={12}>
+            <ThemedText themeColor="textSecondary" style={{ fontSize: 20 }}>✕</ThemedText>
+          </Pressable>
+        </View>
 
-          {notifications.length === 0 ? (
-            <EmptyState title="No notifications" sub="You're all caught up" />
-          ) : (
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {notifications.map((n, i) => {
-                const icon = iconFor(n);
-                return (
-                  <View key={n.id} style={[styles.row, i === notifications.length - 1 && { borderBottomWidth: 0 }]}>
-                    <Ionicons name={icon.name} size={20} color={icon.color} style={styles.icon} />
-                    <View style={{ flex: 1 }}>
-                      <ThemedText type={n.read ? 'default' : 'smallBold'}>{n.title}</ThemedText>
-                      <ThemedText type="small" themeColor="textSecondary">{n.body}</ThemedText>
-                      <ThemedText type="small" themeColor="textSecondary" style={{ marginTop: 2 }}>
-                        {timeAgo(n.createdAt)}
-                      </ThemedText>
-                    </View>
-                    {!n.read && <View style={styles.dot} />}
+        {notifications.length === 0 ? (
+          <EmptyState title="No notifications" sub="You're all caught up" />
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={styles.list}
+            scrollEventThrottle={16}
+            onScroll={({ nativeEvent }) => {
+              if (nativeEvent.contentOffset.y < -50) onClose();
+            }}>
+            {notifications.map((n, i) => {
+              const icon = iconFor(n);
+              return (
+                <View key={n.id} style={[styles.row, i === notifications.length - 1 && { borderBottomWidth: 0 }]}>
+                  <Ionicons name={icon.name} size={20} color={icon.color} style={styles.icon} />
+                  <View style={{ flex: 1 }}>
+                    <ThemedText type={n.read ? 'default' : 'smallBold'}>{n.title}</ThemedText>
+                    <ThemedText type="small" themeColor="textSecondary">{n.body}</ThemedText>
+                    <ThemedText type="small" themeColor="textSecondary" style={{ marginTop: 2 }}>
+                      {timeAgo(n.createdAt)}
+                    </ThemedText>
                   </View>
-                );
-              })}
-            </ScrollView>
-          )}
-        </ThemedView>
-      </SafeAreaView>
+                  {!n.read && <View style={styles.dot} />}
+                </View>
+              );
+            })}
+          </ScrollView>
+        )}
+      </ThemedView>
     </Modal>
   );
 }
@@ -87,14 +92,14 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
-  sheetWrap: { marginTop: 'auto' },
   sheet: {
+    marginTop: 'auto',
+    height: '50%',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: Spacing.three,
-    paddingBottom: Spacing.four,
-    maxHeight: '75%',
   },
+  list: { flex: 1 },
   handle: {
     width: 36,
     height: 4,

@@ -1,19 +1,29 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 
-import { Badge, EmptyState, ErrorView, LoadingView } from '@/components/common';
+import { AnimatedPressable } from '@/components/animated-pressable';
+import { Card, EmptyState, ErrorView, LoadingView } from '@/components/common';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { TopBar } from '@/components/top-bar';
-import { Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { BottomTabInset, Brand, BrandDark, Spacing } from '@/constants/theme';
 import { apiGet, ApiError } from '@/lib/api-client';
 import type { Team } from '@/lib/types';
 
+const CATEGORY_COLORS: Record<string, string> = {
+  Sales: '#4F8EF7',
+  Production: '#B56CFF',
+  Operations: '#00B9F2',
+  HR: '#22C55E',
+};
+
+function initials(name: string) {
+  return name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+}
+
 export default function TeamsScreen() {
   const router = useRouter();
-  const theme = useTheme();
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,15 +51,27 @@ export default function TeamsScreen() {
             data={teams}
             keyExtractor={(item) => String(item.id)}
             contentContainerStyle={styles.list}
-            renderItem={({ item }) => (
-              <Pressable onPress={() => router.push(`/teams/${item.id}`)} style={[styles.row, { borderBottomColor: theme.backgroundSelected }]}>
-                <ThemedText style={{ flex: 1 }}>{item.name}</ThemedText>
-                <ThemedText type="small" themeColor="textSecondary" style={{ marginRight: Spacing.two }}>
-                  {item.category || 'Team'} · {item.member_count ?? 0} member{item.member_count !== 1 ? 's' : ''}
-                </ThemedText>
-                <Badge text="Active" color="green" />
-              </Pressable>
-            )}
+            renderItem={({ item }) => {
+              const color = CATEGORY_COLORS[item.category] ?? Brand;
+              return (
+                <AnimatedPressable onPress={() => router.push(`/teams/${item.id}`)}>
+                  <Card style={styles.row}>
+                    <View style={[styles.iconCircle, { backgroundColor: color }]}>
+                      <ThemedText style={[styles.iconText, { color: color === Brand ? BrandDark : '#fff' }]}>
+                        {initials(item.name)}
+                      </ThemedText>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <ThemedText type="default">{item.name}</ThemedText>
+                      <ThemedText type="small" themeColor="textSecondary">
+                        {item.category || 'Team'} · {item.member_count ?? 0} member{item.member_count !== 1 ? 's' : ''}
+                      </ThemedText>
+                    </View>
+                    <ThemedText themeColor="textSecondary" style={{ fontSize: 20 }}>›</ThemedText>
+                  </Card>
+                </AnimatedPressable>
+              );
+            }}
           />
         )}
       </View>
@@ -60,12 +82,18 @@ export default function TeamsScreen() {
 const styles = StyleSheet.create({
   fill: { flex: 1 },
   title: { fontSize: 28, paddingHorizontal: Spacing.three, paddingTop: Spacing.three, paddingBottom: Spacing.two },
-  list: { padding: Spacing.three },
+  list: { padding: Spacing.three, paddingTop: 0, paddingBottom: BottomTabInset },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: Spacing.two,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(120,120,128,0.2)',
+    gap: Spacing.three,
   },
+  iconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconText: { fontWeight: '800', fontSize: 15 },
 });

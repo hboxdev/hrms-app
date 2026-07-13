@@ -5,7 +5,7 @@ import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, StyleSheet, 
 import { Card, EmptyState, ErrorView, LoadingView, SectionTitle } from '@/components/common';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Brand, BrandDark, Spacing } from '@/constants/theme';
+import { BottomTabInset, Brand, BrandDark, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { apiGet, apiPostForm, ApiError } from '@/lib/api-client';
 import type { Resignation } from '@/lib/types';
@@ -172,7 +172,7 @@ export default function ResignationScreen() {
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  content: { padding: Spacing.three, paddingBottom: Spacing.six },
+  content: { padding: Spacing.three, paddingBottom: BottomTabInset },
   label: { marginTop: Spacing.two, marginBottom: 4, textTransform: 'uppercase' },
   input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: Spacing.two, paddingVertical: 10, fontSize: 15 },
   textArea: { minHeight: 70, textAlignVertical: 'top' },

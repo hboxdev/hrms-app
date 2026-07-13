@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Badge, EmptyState, ErrorView, ListRow, LoadingView } from '@/components/common';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { BottomTabInset, Spacing } from '@/constants/theme';
 import { apiGet, ApiError } from '@/lib/api-client';
 import type { Payslip } from '@/lib/types';
 
@@ -61,5 +61,5 @@ export default function PayslipsScreen() {
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  list: { padding: Spacing.three },
+  list: { padding: Spacing.three, paddingBottom: BottomTabInset },
 });

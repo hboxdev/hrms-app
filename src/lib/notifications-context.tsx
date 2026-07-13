@@ -69,18 +69,40 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const paymentPlayer = useAudioPlayer(require('@/assets/sounds/payment.wav'));
   const announcementPlayer = useAudioPlayer(require('@/assets/sounds/notification.wav'));
+  // Poll effect below intentionally doesn't depend on these player objects (their identity
+  // isn't guaranteed stable across renders); refs let the effect read the latest player
+  // without re-subscribing every render, which previously caused duplicate notifications.
+  const paymentPlayerRef = useRef(paymentPlayer);
+  const announcementPlayerRef = useRef(announcementPlayer);
+  paymentPlayerRef.current = paymentPlayer;
+  announcementPlayerRef.current = announcementPlayer;
   const seenPaymentIds = useRef<Set<string> | null>(null);
   const seenAnnouncementIds = useRef<Set<string> | null>(null);
 
   const addNotifications = useCallback(
     (additions: Notification[], player: ReturnType<typeof useAudioPlayer>) => {
       if (additions.length === 0) return;
-      setNotifications((prev) => [...additions, ...prev]);
+      // Dedupe against current state as a final safety net — poll timers can overlap
+      // (fast refresh, slow network, etc.) and this guarantees no id ever renders twice.
+      setNotifications((prev) => {
+        const existingIds = new Set(prev.map((n) => n.id));
+        const deduped = additions.filter((n) => !existingIds.has(n.id));
+        return deduped.length > 0 ? [...deduped, ...prev] : prev;
+      });
       player.seekTo(0);
       player.play();
     },
     []
   );
+
+  const addSilently = useCallback((additions: Notification[]) => {
+    if (additions.length === 0) return;
+    setNotifications((prev) => {
+      const existingIds = new Set(prev.map((n) => n.id));
+      const deduped = additions.filter((n) => !existingIds.has(n.id)).map((n) => ({ ...n, read: true }));
+      return deduped.length > 0 ? [...deduped, ...prev] : prev;
+    });
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -104,7 +126,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
       if (fresh.length === 0) return;
       fresh.forEach((p) => seenPaymentIds.current!.add(String(p.id)));
 
-      addNotifications(fresh.map((p) => paymentNotification(p.id, p.customer_name, p.owner_name, Number(p.total_amount))), paymentPlayer);
+      addNotifications(fresh.map((p) => paymentNotification(p.id, p.customer_name, p.owner_name, Number(p.total_amount))), paymentPlayerRef.current);
     }
 
     async function pollOwnInvoices() {
@@ -122,7 +144,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
       if (fresh.length === 0) return;
       fresh.forEach((inv) => seenPaymentIds.current!.add(String(inv.id)));
 
-      addNotifications(fresh.map((inv) => paymentNotification(inv.id, inv.customer_name, inv.owner_name, Number(inv.total_amount))), paymentPlayer);
+      addNotifications(fresh.map((inv) => paymentNotification(inv.id, inv.customer_name, inv.owner_name, Number(inv.total_amount))), paymentPlayerRef.current);
     }
 
     async function pollAnnouncements() {
@@ -131,7 +153,10 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
 
       const ids = res.notifications.map((a) => String(a.id));
       if (seenAnnouncementIds.current === null) {
+        // First load: announcements already exist server-side, so show them right away (read, no sound) —
+        // unlike payments, these aren't a noisy rolling feed and the user should see what's currently posted.
         seenAnnouncementIds.current = new Set(ids);
+        addSilently(res.notifications.map(announcementNotification));
         return;
       }
 
@@ -139,7 +164,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
       if (fresh.length === 0) return;
       fresh.forEach((a) => seenAnnouncementIds.current!.add(String(a.id)));
 
-      addNotifications(fresh.map(announcementNotification), announcementPlayer);
+      addNotifications(fresh.map(announcementNotification), announcementPlayerRef.current);
     }
 
     async function poll() {
@@ -156,7 +181,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
       cancelled = true;
       clearInterval(interval);
     };
-  }, [user, isAdmin, addNotifications, paymentPlayer, announcementPlayer]);
+  }, [user, isAdmin, addNotifications, addSilently]);
 
   const markAllRead = useCallback(() => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));

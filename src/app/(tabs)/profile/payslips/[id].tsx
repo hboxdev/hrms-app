@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Badge, Card, ErrorView, LoadingView, SectionTitle } from '@/components/common';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { BrandText, Spacing } from '@/constants/theme';
+import { BottomTabInset, BrandText, Spacing } from '@/constants/theme';
 import { apiGet, ApiError } from '@/lib/api-client';
 import type { PayslipDetail } from '@/lib/types';
 
@@ -108,7 +108,7 @@ export default function PayslipDetailScreen() {
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  content: { padding: Spacing.three, paddingBottom: Spacing.six },
+  content: { padding: Spacing.three, paddingBottom: BottomTabInset },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   noPad: { padding: 0, paddingHorizontal: Spacing.three },
   note: { marginTop: Spacing.one, fontStyle: 'italic' },

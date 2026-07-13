@@ -6,7 +6,8 @@ import { Card, SectionTitle } from '@/components/common';
 import { NotificationsPanel } from '@/components/notifications-panel';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { TopBar } from '@/components/top-bar';
+import { BottomTabInset, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useNotifications } from '@/lib/notifications-context';
 
@@ -17,7 +18,10 @@ export default function MoreScreen() {
 
   return (
     <ThemedView style={styles.fill}>
+      <TopBar />
       <ScrollView contentContainerStyle={styles.content}>
+        <ThemedText type="title" style={styles.title}>More</ThemedText>
+
         <SectionTitle>Modules</SectionTitle>
 
         <Pressable onPress={() => setPanelOpen(true)}>
@@ -47,7 +51,8 @@ export default function MoreScreen() {
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  content: { padding: Spacing.three, paddingBottom: Spacing.six },
+  content: { padding: Spacing.three, paddingBottom: BottomTabInset },
+  title: { fontSize: 28, marginBottom: Spacing.two },
   moduleCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
   moduleIcon: {
     width: 40,

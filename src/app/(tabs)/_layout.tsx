@@ -1,7 +1,7 @@
-import { Redirect } from 'expo-router';
-import { Icon, Label, NativeTabs } from 'expo-router/unstable-native-tabs';
+import { Redirect, Tabs } from 'expo-router';
 
 import { LoadingView } from '@/components/common';
+import { CustomTabBar } from '@/components/custom-tab-bar';
 import { useAuth } from '@/lib/auth-context';
 
 export default function TabLayout() {
@@ -11,26 +11,12 @@ export default function TabLayout() {
   if (!user) return <Redirect href="/login" />;
 
   return (
-    <NativeTabs>
-      <NativeTabs.Trigger name="index">
-        <Label>Home</Label>
-        <Icon sf={{ default: 'house', selected: 'house.fill' }} />
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="invoices">
-        <Label>Invoices</Label>
-        <Icon sf={{ default: 'doc.text', selected: 'doc.text.fill' }} />
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="teams" hidden={!isAdmin}>
-        <Label>Teams</Label>
-        <Icon sf={{ default: 'person.2', selected: 'person.2.fill' }} />
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="profile">
-        <Label>Profile</Label>
-        <Icon sf={{ default: 'person.crop.circle', selected: 'person.crop.circle.fill' }} />
-      </NativeTabs.Trigger>
-    </NativeTabs>
+    <Tabs tabBar={(props) => <CustomTabBar {...props} />} screenOptions={{ headerShown: false }}>
+      <Tabs.Screen name="index" options={{ title: 'Home' }} />
+      <Tabs.Screen name="invoices" options={{ title: 'Invoices' }} />
+      <Tabs.Screen name="teams" options={{ title: 'Teams', href: isAdmin ? undefined : null }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
+      <Tabs.Screen name="more" options={{ title: 'More' }} />
+    </Tabs>
   );
 }

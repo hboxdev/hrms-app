@@ -26,7 +26,6 @@ export default function RootLayout() {
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="login" />
-            <Stack.Screen name="more" options={{ headerShown: true, title: 'More', presentation: 'modal' }} />
           </Stack>
         </NotificationsProvider>
       </AuthProvider>

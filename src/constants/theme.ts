@@ -65,5 +65,6 @@ export const Spacing = {
   six: 64,
 } as const;
 
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
+// Clearance needed so scrollable content isn't hidden behind the floating custom tab bar.
+export const BottomTabInset = 110;
 export const MaxContentWidth = 800;

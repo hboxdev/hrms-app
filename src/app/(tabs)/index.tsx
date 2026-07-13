@@ -2,11 +2,12 @@ import { BlurView } from 'expo-blur';
 import { useCallback, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
+import { AnimatedPressable } from '@/components/animated-pressable';
 import { Badge, Card, ErrorView, LoadingView, SectionTitle, StatCard } from '@/components/common';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { TopBar } from '@/components/top-bar';
-import { Spacing } from '@/constants/theme';
+import { BottomTabInset, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { apiGet, ApiError } from '@/lib/api-client';
 import { useAuth } from '@/lib/auth-context';
@@ -149,7 +150,7 @@ function AdminDashboard({ data }: { data: DashboardData }) {
       {teams.map((t) => {
         const expanded = expandedTeamId === t.id;
         return (
-          <Pressable key={t.id} onPress={() => setExpandedTeamId(expanded ? null : t.id)}>
+          <AnimatedPressable key={t.id} onPress={() => setExpandedTeamId(expanded ? null : t.id)}>
             <Card>
               <View style={styles.teamHeader}>
                 <View>
@@ -174,7 +175,7 @@ function AdminDashboard({ data }: { data: DashboardData }) {
                 </View>
               )}
             </Card>
-          </Pressable>
+          </AnimatedPressable>
         );
       })}
 
@@ -228,7 +229,7 @@ function Metric({ label, value, style }: { label: string; value: string; style?:
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  content: { padding: Spacing.three, paddingBottom: Spacing.six },
+  content: { padding: Spacing.three, paddingBottom: BottomTabInset },
   greeting: { fontSize: 28 },
   monthSwitcher: {
     flexDirection: 'row',

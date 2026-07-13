@@ -1,14 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Avatar } from '@/components/avatar';
+import { AnimatedPressable } from '@/components/animated-pressable';
 import { NotificationsPanel } from '@/components/notifications-panel';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth-context';
 import { useNotifications } from '@/lib/notifications-context';
@@ -17,7 +18,8 @@ export function TopBar() {
   const { user, logout } = useAuth();
   const { unreadCount } = useNotifications();
   const theme = useTheme();
-  const router = useRouter();
+  const scheme = useColorScheme();
+  const isDark = scheme === 'dark';
   const [panelOpen, setPanelOpen] = useState(false);
 
   if (!user) return null;
@@ -31,34 +33,32 @@ export function TopBar() {
 
   return (
     <View style={styles.wrap}>
-      <SafeAreaView edges={['top']}>
-        <View style={[styles.bar, { borderBottomColor: theme.backgroundSelected }]}>
-          <Image source={require('@/assets/images/icon.png')} style={styles.logo} />
+      <BlurView
+        intensity={60}
+        tint={isDark ? 'dark' : 'light'}
+        experimentalBlurMethod="dimezisBlurView"
+        style={[styles.blur, { backgroundColor: isDark ? 'rgba(20,20,22,0.6)' : 'rgba(255,255,255,0.6)', borderBottomColor: theme.backgroundSelected }]}>
+        <SafeAreaView edges={['top']}>
+          <View style={styles.bar}>
+            <Image source={require('@/assets/images/icon.png')} style={styles.logo} />
 
-          <View style={styles.actions}>
-            <Pressable onPress={() => setPanelOpen(true)} hitSlop={10} style={styles.iconBtn}>
-              <Ionicons name="notifications-outline" size={22} color={theme.text} />
-              {unreadCount > 0 && (
-                <View style={styles.badge}>
-                  <ThemedText style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</ThemedText>
-                </View>
-              )}
-            </Pressable>
+            <View style={styles.actions}>
+              <AnimatedPressable onPress={() => setPanelOpen(true)} hitSlop={10} style={[styles.iconCircle, { backgroundColor: theme.backgroundSelected }]}>
+                <Ionicons name="notifications-outline" size={17} color={theme.text} />
+                {unreadCount > 0 && (
+                  <View style={styles.badge}>
+                    <ThemedText style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</ThemedText>
+                  </View>
+                )}
+              </AnimatedPressable>
 
-            <Pressable onPress={confirmLogout} hitSlop={10} style={styles.iconBtn}>
-              <Ionicons name="log-out-outline" size={22} color="#EF4444" />
-            </Pressable>
-
-            <View style={styles.iconBtn}>
-              <Avatar name={user.name} imagePath={user.profile_image} size={30} />
+              <AnimatedPressable onPress={confirmLogout} hitSlop={10} style={[styles.iconCircle, { backgroundColor: 'rgba(239,68,68,0.12)' }]}>
+                <Ionicons name="power-outline" size={17} color="#EF4444" />
+              </AnimatedPressable>
             </View>
-
-            <Pressable onPress={() => router.push('/more')} hitSlop={10} style={styles.iconBtn}>
-              <Ionicons name="ellipsis-horizontal" size={22} color={theme.text} />
-            </Pressable>
           </View>
-        </View>
-      </SafeAreaView>
+        </SafeAreaView>
+      </BlurView>
 
       <NotificationsPanel visible={panelOpen} onClose={() => setPanelOpen(false)} />
     </View>
@@ -67,17 +67,23 @@ export function TopBar() {
 
 const styles = StyleSheet.create({
   wrap: { zIndex: 10 },
+  blur: { borderBottomWidth: StyleSheet.hairlineWidth },
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingVertical: 6,
   },
-  logo: { width: 32, height: 32, borderRadius: 8 },
-  actions: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
-  iconBtn: { alignItems: 'center', justifyContent: 'center' },
+  logo: { width: 26, height: 26, borderRadius: 6 },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  iconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   badge: {
     position: 'absolute',
     top: -4,
