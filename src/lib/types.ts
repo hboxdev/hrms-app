@@ -140,6 +140,37 @@ export type ShiftInfo = {
   grace_period_minutes: number;
 } | null;
 
+export type RooftopMenuItem = {
+  id: number;
+  name: string;
+  description: string | null;
+  category: string;
+  price: string;
+  estimated_time: number;
+  image: string | null;
+  is_available: number;
+};
+
+export type RooftopOrderItem = {
+  item_name: string;
+  quantity: number;
+  unit_price: string;
+  subtotal: string;
+};
+
+export type RooftopOrder = {
+  id: number;
+  user_id: number;
+  total_amount: string;
+  notes: string | null;
+  status: 'pending' | 'preparing' | 'done' | 'cancelled';
+  payment_status: 'paid' | 'unpaid';
+  cancel_reason: string | null;
+  created_at: string;
+  updated_at: string;
+  items: RooftopOrderItem[];
+};
+
 export type Resignation = {
   id: number;
   resignation_date: string;
