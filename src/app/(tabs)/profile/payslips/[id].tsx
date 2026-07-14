@@ -12,7 +12,7 @@ import type { PayslipDetail } from '@/lib/types';
 const MONTHS = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 function money(v: string | number) {
-  return `$${Number(v).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+  return `Rs ${Number(v).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
 }
 
 function Row({ label, value }: { label: string; value: string }) {

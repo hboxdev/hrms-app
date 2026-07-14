@@ -42,7 +42,7 @@ export default function PayslipsScreen() {
             renderItem={({ item }) => (
               <ListRow
                 title={`${MONTHS[item.salary_month]} ${item.salary_year}`}
-                subtitle={`$${Number(item.final_salary).toLocaleString()}`}
+                subtitle={`Rs ${Number(item.final_salary).toLocaleString()}`}
                 onPress={() => router.push(`/profile/payslips/${item.id}`)}
                 right={
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>

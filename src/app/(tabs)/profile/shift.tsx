@@ -8,6 +8,15 @@ import { BrandText, Spacing } from '@/constants/theme';
 import { apiGet, ApiError } from '@/lib/api-client';
 import type { ShiftInfo } from '@/lib/types';
 
+function formatTime12h(time: string | null | undefined) {
+  if (!time) return '';
+  const [hourStr, minuteStr] = time.split(':');
+  const hour = Number(hourStr);
+  const period = hour >= 12 ? 'PM' : 'AM';
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${hour12}:${minuteStr} ${period}`;
+}
+
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.row}>
@@ -39,7 +48,7 @@ export default function ShiftScreen() {
         <Card>
           <ThemedText type="subtitle" style={{ fontSize: 19 }}>{shift.name}</ThemedText>
           <ThemedText type="title" style={{ marginTop: Spacing.two, color: BrandText, fontSize: 32 }}>
-            {shift.start_time?.slice(0, 5)} – {shift.end_time?.slice(0, 5)}
+            {formatTime12h(shift.start_time)} – {formatTime12h(shift.end_time)}
           </ThemedText>
         </Card>
         <Card style={styles.noPad}>
