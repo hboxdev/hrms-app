@@ -11,7 +11,7 @@ import { BottomTabInset, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { apiGet, ApiError } from '@/lib/api-client';
 import { useAuth } from '@/lib/auth-context';
-import type { DashboardData, PerformanceData } from '@/lib/types';
+import type { DashboardData, Invoice, PerformanceData, Team, TeamDetail } from '@/lib/types';
 import { useFocusEffect } from 'expo-router';
 
 function money(n: number) {
@@ -63,10 +63,12 @@ function MonthSwitcher({ month, onChange }: { month: Date; onChange: (d: Date) =
 }
 
 export default function HomeScreen() {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isManager, isSales } = useAuth();
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [performance, setPerformance] = useState<PerformanceData | null>(null);
+  const [managerTeam, setManagerTeam] = useState<TeamDetail | null>(null);
+  const [managerPayments, setManagerPayments] = useState<Invoice[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -78,14 +80,26 @@ export default function HomeScreen() {
       if (isAdmin) {
         const res = await apiGet<{ ok: true } & DashboardData>('dashboard', { month_from: from, month_to: from });
         setDashboard(res);
-      } else {
+      } else if (isManager) {
+        const teamsRes = await apiGet<{ ok: true; teams: Team[] }>('teams');
+        const myTeam = teamsRes.teams[0];
+        if (myTeam) {
+          const [teamRes, invoicesRes] = await Promise.all([
+            apiGet<{ ok: true; team: TeamDetail }>('team', { id: myTeam.id, month_from: from, month_to: from }),
+            apiGet<{ ok: true; invoices: Invoice[] }>('invoices', { team_id: myTeam.id, status: 'paid', page: 1 }),
+          ]);
+          setManagerTeam(teamRes.team);
+          setManagerPayments(invoicesRes.invoices);
+        }
+      } else if (isSales) {
         const res = await apiGet<{ ok: true } & PerformanceData>('performance', { month_from: from, month_to: from });
         setPerformance(res);
       }
+      // Plain 'user' (and other non-sales/manager/admin roles) have no Home analytics for now.
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Something went wrong');
     }
-  }, [isAdmin, month]);
+  }, [isAdmin, isManager, isSales, month]);
 
   useFocusEffect(
     useCallback(() => {
@@ -114,7 +128,7 @@ export default function HomeScreen() {
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </ThemedText>
 
-          <MonthSwitcher month={month} onChange={setMonth} />
+          {(isAdmin || isManager || isSales) && <MonthSwitcher month={month} onChange={setMonth} />}
 
           {loading ? (
             <LoadingView />
@@ -122,7 +136,9 @@ export default function HomeScreen() {
             <ErrorView message={error} />
           ) : isAdmin && dashboard ? (
             <AdminDashboard data={dashboard} />
-          ) : performance ? (
+          ) : isManager && managerTeam ? (
+            <ManagerDashboard team={managerTeam} payments={managerPayments} />
+          ) : isSales && performance ? (
             <SalesDashboard data={performance} />
           ) : null}
         </ScrollView>
@@ -195,6 +211,37 @@ function AdminDashboard({ data }: { data: DashboardData }) {
                     <ThemedText type="small" themeColor="textSecondary">-{money(p.tax_amount)} tax</ThemedText>
                   )}
                 </View>
+              </View>
+            ))}
+          </Card>
+        </>
+      )}
+    </>
+  );
+}
+
+function ManagerDashboard({ team, payments }: { team: TeamDetail; payments: Invoice[] }) {
+  const memberCount = team.members.filter((m) => m.role !== 'admin').length;
+  return (
+    <>
+      <SectionTitle>{team.name}</SectionTitle>
+      <View style={styles.statsGrid}>
+        <StatCard label="Revenue" value={money(team.revenue)} sub="Net after fees" />
+        <StatCard label="Tax" value={money(team.tax)} sub="Merchant fee" />
+        <StatCard label="Members" value={String(memberCount)} sub="Active" />
+      </View>
+
+      {payments.length > 0 && (
+        <>
+          <SectionTitle>Recent Team Payments</SectionTitle>
+          <Card>
+            {payments.slice(0, 6).map((p, i) => (
+              <View key={p.id} style={[styles.paymentRow, i === payments.length - 1 && { borderBottomWidth: 0 }]}>
+                <View style={{ flex: 1 }}>
+                  <ThemedText>{p.customer_name}</ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">{p.owner_name}</ThemedText>
+                </View>
+                <ThemedText style={{ color: '#22C55E' }}>{money(Number(p.total_amount))}</ThemedText>
               </View>
             ))}
           </Card>

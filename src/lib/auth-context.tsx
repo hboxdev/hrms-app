@@ -11,6 +11,8 @@ type AuthState = {
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
+  isManager: boolean;
+  isSales: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   hasRole: (...roles: Role[]) => boolean;
@@ -68,6 +70,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       loading,
       isAdmin: user ? user.role === 'admin' || user.role === 'human_resource' : false,
+      isManager: user ? user.role === 'manager' : false,
+      isSales: user ? user.role === 'sales' : false,
       login,
       logout,
       hasRole,
