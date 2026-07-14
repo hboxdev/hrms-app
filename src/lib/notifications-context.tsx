@@ -3,13 +3,13 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 
 import { apiGet } from '@/lib/api-client';
 import { useAuth } from '@/lib/auth-context';
-import type { DashboardData, Invoice } from '@/lib/types';
+import type { DashboardData, Invoice, RooftopOrder } from '@/lib/types';
 
 export type AlertType = 'info' | 'warning' | 'danger' | 'success';
 
 export type Notification = {
   id: string;
-  source: 'payment' | 'announcement';
+  source: 'payment' | 'announcement' | 'order';
   title: string;
   body: string;
   createdAt: number;
@@ -56,6 +56,32 @@ function announcementNotification(a: AnnouncementApi): Notification {
   };
 }
 
+function orderStatusNotification(order: RooftopOrder): Notification | null {
+  if (order.status === 'preparing') {
+    return {
+      id: `order-${order.id}-preparing`,
+      source: 'order',
+      title: 'Order update',
+      body: `Your order #${order.id} is being prepared`,
+      createdAt: Date.now(),
+      read: false,
+      alertType: 'info',
+    };
+  }
+  if (order.status === 'done') {
+    return {
+      id: `order-${order.id}-done`,
+      source: 'order',
+      title: 'Order ready',
+      body: `Your order #${order.id} is ready. Enjoy your meal!`,
+      createdAt: Date.now(),
+      read: false,
+      alertType: 'success',
+    };
+  }
+  return null;
+}
+
 type NotificationsState = {
   notifications: Notification[];
   unreadCount: number;
@@ -78,6 +104,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   announcementPlayerRef.current = announcementPlayer;
   const seenPaymentIds = useRef<Set<string> | null>(null);
   const seenAnnouncementIds = useRef<Set<string> | null>(null);
+  const seenOrderStatuses = useRef<Map<string, RooftopOrder['status']> | null>(null);
 
   const addNotifications = useCallback(
     (additions: Notification[], player: ReturnType<typeof useAudioPlayer>) => {
@@ -108,6 +135,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
     if (!user) return;
     seenPaymentIds.current = null;
     seenAnnouncementIds.current = null;
+    seenOrderStatuses.current = null;
 
     let cancelled = false;
 
@@ -167,9 +195,33 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
       addNotifications(fresh.map(announcementNotification), announcementPlayerRef.current);
     }
 
+    async function pollRooftopOrders() {
+      const res = await apiGet<{ ok: true; orders: RooftopOrder[] }>('rooftopMyOrders');
+      if (cancelled) return;
+
+      if (seenOrderStatuses.current === null) {
+        // First load: just record current statuses — don't notify for transitions that
+        // already happened before the app was open.
+        seenOrderStatuses.current = new Map(res.orders.map((o) => [String(o.id), o.status]));
+        return;
+      }
+
+      const additions: Notification[] = [];
+      for (const order of res.orders) {
+        const key = String(order.id);
+        const prevStatus = seenOrderStatuses.current.get(key);
+        if (prevStatus !== order.status) {
+          seenOrderStatuses.current.set(key, order.status);
+          const notification = orderStatusNotification(order);
+          if (notification) additions.push(notification);
+        }
+      }
+      addNotifications(additions, announcementPlayerRef.current);
+    }
+
     async function poll() {
       try {
-        await Promise.all([isAdmin ? pollAdminPayments() : pollOwnInvoices(), pollAnnouncements()]);
+        await Promise.all([isAdmin ? pollAdminPayments() : pollOwnInvoices(), pollAnnouncements(), pollRooftopOrders()]);
       } catch {
         // Silent — notification polling shouldn't surface errors to the user.
       }
